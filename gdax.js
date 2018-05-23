@@ -12,7 +12,7 @@ var authedClient = new Gdax.AuthenticatedClient(
   settings.apiURI);
 
 var size = '0.01';
-var price = 0.07810;
+var price = 0.07840;
 
 var sellParams = {
   'price': price, // BTC 
