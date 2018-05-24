@@ -1,3 +1,4 @@
+
 var settings = require('./settings.js');
 console.log(settings);
 
@@ -12,15 +13,31 @@ var authedClient = new Gdax.AuthenticatedClient(
   settings.apiURI);
 
 var size = '0.01';
-var price = 0.07840;
 
-var sellParams = {
-  'price': price, // BTC 
-  'size': size, // ETH 
-  'product_id': 'ETH-BTC',
-};
+var sell = function(price) {
+  var sellParams = {
+    'price': price, // BTC 
+    'size': size, // ETH 
+    'product_id': 'ETH-BTC',
+  };
 
-authedClient.sell(sellParams, (error, response, data) => {
-  console.log(error);
-  console.log(data);
-});
+  authedClient.sell(sellParams, (error, response, data) => {
+    console.log(error);
+    console.log(data);
+  });
+}
+
+var buy = function(price) {
+  var buyParams = {
+    'price': price, // BTC 
+    'size': size, // ETH 
+    'product_id': 'ETH-BTC',
+  };
+
+  authedClient.buy(buyParams, (error, response, data) => {
+    console.log(error);
+    console.log(data);
+  });
+}
+
+sell(0.07855);
