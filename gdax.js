@@ -21,12 +21,32 @@ const websocket = new Gdax.WebsocketClient(
 
 var size = '0.01';
 
-var autosell = function() {
+var autosell = function(sell_prices) {
+  console.log(sell_prices);
   publicClient.getProductTicker('ETH-BTC', (error, response, data) => {
-    console.log(error);
-    console.log(data);
-    console.log(data.ask);
-    sell(Number.parseFloat(data.ask));
+    // console.log(error);
+    // console.log(data);
+    // console.log(data.ask);
+    var target = Number.parseFloat(data.ask);
+    var done = false;
+    while (!done) {
+      var higher_prices = sell_prices.filter(price => price.price >= target && price.price < target * 1.001);
+      var lower_prices = sell_prices.filter(price => price.price < target * 0.098);
+      if (higher_prices.length > 0 || lower_prices.length > 0) {
+        console.log(target);
+        console.log((new Date()).toISOString() + " - lower_prices - " + JSON.stringify(lower_prices));
+        console.log((new Date()).toISOString() + " - higher_prices - " + JSON.stringify(higher_prices));
+        target *= 1.001;
+      }
+      else {
+        console.log("would sell for " + target);
+        sell(Number.parseFloat(target.toFixed(5)));
+        done = true;
+      }
+    }
+
+
+
     return;
   });
 }

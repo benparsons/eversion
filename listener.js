@@ -8,14 +8,14 @@ var market = require('./gdax.js');
 let db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
   if (err) {
     console.error(err.message);
+  } else {
+    console.log('Connected to the eversion database.');
   }
-  console.log('Connected to the eversion database.');
 });
 
 var websocket = market.websocket;
 
 websocket.on('close', function() {
-  logger.log("technical", "websocket close", null);
   websocket.connect();
 });
 websocket.on('error', function(a,b) { 
@@ -27,7 +27,7 @@ websocket.on('error', function(a,b) {
 websocket.on('message', function(data) {
 
   if (data.type === 'heartbeat') { return; };
-  console.log(JSON.stringify(data, null, 2));
+  console.log(JSON.stringify(data, null, 0));
   if (data.type === 'subscriptions') { return; };
 
   storeEvent(data);
@@ -55,7 +55,7 @@ function storeEvent(data) {
   sqlstring += "'" + data.time + "', "
   sqlstring += "'" + data.remaining_size + "', "
   sqlstring += "'" + data.reason + "')"
-  console.log(sqlstring);
+  //console.log(sqlstring);
   db.run( sqlstring);
 
 
@@ -73,7 +73,7 @@ function storeEvent(data) {
   sqlstring += "'" + data.time + "', "
   sqlstring += "'" + data.remaining_size + "', "
   sqlstring += "'" + data.reason + "')"
-  console.log(sqlstring);
+  //console.log(sqlstring);
   db.run( sqlstring);
 }
 
@@ -85,8 +85,11 @@ setInterval(minuteAction, 1000 * seconds);
 function minuteAction() {
   console.log(new Date());
   market.getAccounts((error, response, data) => {
-    console.log(error);
-    console.log(data);
+    if (error) {
+      console.log(error);
+      return;
+    }
+    //console.log(data);
     var eth_available = Number.parseFloat(
       data.find(o => o.currency === 'ETH').available
     );
@@ -96,14 +99,22 @@ function minuteAction() {
     sqlstring += Number.parseFloat(data.find(o => o.currency === 'BTC').available) + ',';
     sqlstring += Number.parseFloat(data.find(o => o.currency === 'BTC').hold) + ',';
     sqlstring += "'" + new Date().toISOString() + "')";
-    console.log(sqlstring);
+    //console.log(sqlstring);
     db.run( sqlstring);
 
     console.log("ETH available: " + eth_available);
     if (eth_available >= 0.01) {
       console.log("time to sell eth");
-      market.autosell();
+      db.all("SELECT price FROM orders WHERE type = 'open' AND side = 'sell'", function (err, rows) {
+        if(err){
+            console.log(err);
+        }else{
+          //console.log("min_sell_price: " + min_sell_price);
+          market.autosell(rows);
+        }
+      });
     }
+
     return;
   });
 }
