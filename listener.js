@@ -1,5 +1,6 @@
 var settings = require('./settings.js');
-console.log(settings);
+var logger = require('./logger.js');
+logger.verbose("gdax_auth,listener", settings);
 var Gdax = require('gdax');
 const sqlite3 = require('sqlite3').verbose();
 var market = require('./gdax.js');

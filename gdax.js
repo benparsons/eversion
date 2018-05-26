@@ -1,6 +1,6 @@
-
 var settings = require('./settings.js');
-console.log(settings);
+var logger = require('./logger.js');
+logger.verbose("gdax_auth,gdax", settings);
 
 var Gdax = require('gdax');
 
