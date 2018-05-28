@@ -58,7 +58,7 @@ var sell = function(price) {
     'product_id': 'ETH-BTC',
     'post_only': true,
     'time_in_force': 'GTT',
-    'cancel_after': 'hour'
+    'cancel_after': 'day'//'hour'
   };
 
   authedClient.sell(sellParams, (error, response, data) => {
