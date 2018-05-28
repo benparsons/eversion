@@ -4,6 +4,7 @@ logger.verbose("gdax_auth,listener", settings);
 var Gdax = require('gdax');
 const sqlite3 = require('sqlite3').verbose();
 var market = require('./gdax.js');
+var heartbeat_obj = {};
 
 
 let db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
@@ -27,7 +28,10 @@ websocket.on('error', function(a,b) {
 
 websocket.on('message', function(data) {
 
-  if (data.type === 'heartbeat') { return; };
+  if (data.type === 'heartbeat') {
+    heartbeat_obj = data;
+    return;
+  }
   console.log(JSON.stringify(data, null, 0));
   if (data.type === 'subscriptions') { return; };
 
@@ -84,7 +88,7 @@ var seconds = 60 ;
 setInterval(minuteAction, 1000 * seconds);
 
 function minuteAction() {
-  console.log(new Date());
+  logger.verbose("minuteAction", heartbeat_obj);
   market.getAccounts((error, response, data) => {
     if (error) {
       console.log(error);
@@ -103,7 +107,7 @@ function minuteAction() {
     //console.log(sqlstring);
     db.run( sqlstring);
 
-    console.log("ETH available: " + eth_available);
+    logger.verbose("currentETH", "ETH available: " + eth_available);
     if (eth_available >= 0.01) {
       console.log("time to sell eth");
       db.all("SELECT price FROM orders WHERE type = 'open' AND side = 'sell'", function (err, rows) {
