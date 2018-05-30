@@ -32,7 +32,7 @@ websocket.on('message', function(data) {
     heartbeat_obj = data;
     return;
   }
-  console.log(JSON.stringify(data, null, 0));
+  logger.info("message", JSON.stringify(data, null, 0));
   if (data.type === 'subscriptions') { return; };
 
   storeEvent(data);
@@ -109,7 +109,7 @@ function minuteAction() {
 
     logger.verbose("currentETH", "ETH available: " + eth_available);
     if (eth_available >= 0.01) {
-      console.log("time to sell eth");
+      logger.info("initiatingAutosell", "time to sell eth");
       db.all("SELECT price FROM orders WHERE type = 'open' AND side = 'sell'", function (err, rows) {
         if(err){
             console.log(err);
