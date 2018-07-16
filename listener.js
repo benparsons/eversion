@@ -1,17 +1,20 @@
 var settings = require('./settings.js');
 var logger = require('./logger.js');
+var sqlgen = require('./sqlgen.js');
 logger.verbose("gdax_auth,listener", settings);
 var Gdax = require('gdax');
 const sqlite3 = require('sqlite3').verbose();
 var market = require('./gdax.js');
+var utility = require('./utility.js');
 var heartbeat_obj = {};
+var dirty = false;
 
 
 let db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
   if (err) {
-    console.error(err.message);
+    logger.error("DB", err.message);
   } else {
-    console.log('Connected to the eversion database.');
+    logger.verbose("DB", 'Connected to the eversion database.');
   }
 });
 
@@ -21,7 +24,7 @@ websocket.on('close', function() {
   websocket.connect();
 });
 websocket.on('error', function(a,b) { 
-  console.log("websocket error"); 
+  logger.error("websocket", "websocket error"); 
   console.log(a); 
   console.log(b); 
 });
@@ -36,6 +39,7 @@ websocket.on('message', function(data) {
   if (data.type === 'subscriptions') { return; };
 
   storeEvent(data);
+  dirty = true;
   if (data.type === 'done' && data.reason === 'filled') {
     if (data.side === 'sell') {
       var buyPrice = data.price * 0.9975; // -0.25%
@@ -46,40 +50,26 @@ websocket.on('message', function(data) {
 });
 
 function storeEvent(data) {
-  var sqlstring = "INSERT into events(type , order_id , order_type , size , price , side , product_id , sequence , user_id , profile_id , time , remaining_size , reason) VALUES (";
-  sqlstring += "'" + data.type + "', "
-  sqlstring += "'" + data.order_id + "', "
-  sqlstring += "'" + data.order_type + "', "
-  sqlstring += "'" + data.size + "', "
-  sqlstring += "'" + data.price + "', "
-  sqlstring += "'" + data.side + "', "
-  sqlstring += "'" + data.product_id + "', "
-  sqlstring += "'" + data.sequence + "', "
-  sqlstring += "'" + data.user_id + "', "
-  sqlstring += "'" + data.profile_id + "', "
-  sqlstring += "'" + data.time + "', "
-  sqlstring += "'" + data.remaining_size + "', "
-  sqlstring += "'" + data.reason + "')"
-  //console.log(sqlstring);
-  db.run( sqlstring);
+  var order = {
+    type:	data.type,
+    order_id:	data.order_id,
+    order_type: data.order_type ? data.order_type : null,
+    size:	data.remaining_size ? data.remaining_size : null,
+    price:	data.price,
+    side:	data.side,
+    product_id:	data.product_id,
+    remaining_size:	data.remaining_size,
+    reason:	data.reason,
+    expire_time: null,
+    post_only: null,
+    settled: null,
+    last_updated: (new Date()).toISOString()
+  };
+  
+  var sqlString = sqlgen.insertOrReplaceSql('orders', order);
 
-
-  sqlstring = "insert or replace into orders(type , order_id , order_type , size , price , side , product_id , sequence , user_id , profile_id , time , remaining_size , reason) VALUES (";
-  sqlstring += "'" + data.type + "', "
-  sqlstring += "'" + data.order_id + "', "
-  sqlstring += "'" + data.order_type + "', "
-  sqlstring += "'" + data.size + "', "
-  sqlstring += "'" + data.price + "', "
-  sqlstring += "'" + data.side + "', "
-  sqlstring += "'" + data.product_id + "', "
-  sqlstring += "'" + data.sequence + "', "
-  sqlstring += "'" + data.user_id + "', "
-  sqlstring += "'" + data.profile_id + "', "
-  sqlstring += "'" + data.time + "', "
-  sqlstring += "'" + data.remaining_size + "', "
-  sqlstring += "'" + data.reason + "')"
-  //console.log(sqlstring);
-  db.run( sqlstring);
+  console.log(sqlString);
+  db.run(sqlString);
 }
 
 minuteAction();
@@ -109,6 +99,7 @@ function minuteAction() {
 
     logger.verbose("currentETH", "ETH available: " + eth_available);
     if (eth_available >= 0.01) {
+      dirty = true;
       logger.info("initiatingAutosell", "time to sell eth");
       db.all("SELECT price FROM orders WHERE type = 'open' AND side = 'sell'", function (err, rows) {
         if(err){
@@ -119,6 +110,12 @@ function minuteAction() {
         }
       });
     }
+
+    if (dirty) {
+      setTimeout(utility.updateOrders, 5 * 1000);
+      dirty = false;
+    }
+    
 
     return;
   });

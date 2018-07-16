@@ -62,8 +62,11 @@ var sell = function(price) {
   };
 
   authedClient.sell(sellParams, (error, response, data) => {
-    console.log(error);
-    console.log(data);
+    if (error) { 
+      logger.error("sell", error);
+      return;
+    }
+    logger.info("sell", data);
     return;
   });
 }
@@ -85,11 +88,15 @@ var buy = function(price) {
 var getAccounts = function(callback) {
   authedClient.getAccounts(callback);
 }
+var getOrders = function(callback) {
+  authedClient.getOrders(callback);
+}
 
 module.exports = {
   websocket: websocket,
   sell: sell,
   buy: buy,
   getAccounts: getAccounts,
-  autosell: autosell
+  autosell: autosell,
+  getOrders: getOrders
 }

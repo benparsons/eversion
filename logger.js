@@ -1,3 +1,7 @@
+var error = function(tag, message) {
+  write("ERROR", tag, message);
+}
+
 var info = function(tag, message) {
   write("INFO", tag, message);
 }
@@ -22,6 +26,7 @@ function write(level, tag, message) {
 }
 
 module.exports = {
+  error: error,
   info: info,
   verbose: verbose
 }
