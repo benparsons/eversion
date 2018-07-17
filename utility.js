@@ -47,7 +47,6 @@ function updateOrders() {
       
       var sqlString = sqlgen.insertOrReplaceSql('orders', order);
     
-      console.log(sqlString);
       db.run(sqlString);
     });
   });

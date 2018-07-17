@@ -23,10 +23,9 @@ var websocket = market.websocket;
 websocket.on('close', function() {
   websocket.connect();
 });
-websocket.on('error', function(a,b) { 
-  logger.error("websocket", "websocket error"); 
-  console.log(a); 
-  console.log(b); 
+websocket.on('error', function(err) { 
+  logger.error("websocket", err);
+  websocket.connect();
 });
 
 websocket.on('message', function(data) {
@@ -68,7 +67,6 @@ function storeEvent(data) {
   
   var sqlString = sqlgen.insertOrReplaceSql('orders', order);
 
-  console.log(sqlString);
   db.run(sqlString);
 }
 
@@ -81,10 +79,9 @@ function minuteAction() {
   logger.verbose("minuteAction", heartbeat_obj);
   market.getAccounts((error, response, data) => {
     if (error) {
-      console.log(error);
+      logger.error("getAccounts", error);
       return;
     }
-    //console.log(data);
     var eth_available = Number.parseFloat(
       data.find(o => o.currency === 'ETH').available
     );
@@ -94,19 +91,36 @@ function minuteAction() {
     sqlstring += Number.parseFloat(data.find(o => o.currency === 'BTC').available) + ',';
     sqlstring += Number.parseFloat(data.find(o => o.currency === 'BTC').hold) + ',';
     sqlstring += "'" + new Date().toISOString() + "')";
-    //console.log(sqlstring);
     db.run( sqlstring);
 
     logger.verbose("currentETH", "ETH available: " + eth_available);
     if (eth_available >= 0.01) {
       dirty = true;
       logger.info("initiatingAutosell", "time to sell eth");
-      db.all("SELECT price FROM orders WHERE type = 'open' AND side = 'sell'", function (err, rows) {
-        if(err){
-            console.log(err);
-        }else{
-          //console.log("min_sell_price: " + min_sell_price);
-          market.autosell(rows);
+      var sqlGetHighestBuy = "SELECT price FROM orders  WHERE side = 'buy' AND type = 'open' ORDER BY price DESC LIMIT 1";
+      var highestBuy = 0;
+      db.get(sqlGetHighestBuy, function(err, value) {
+        if (err) {
+          logger.error("sqlGetHighestBuy", err)
+        } else {
+          if (value && value.price) {
+            highestBuy = value.price;
+            logger.verbose("sqlGetHighestBuy", highestBuy);
+          }
+          db.all("SELECT price FROM orders WHERE type = 'open' AND side = 'sell'", function (err, rows) {
+            if(err){
+                logger.error("sqlGetOpenSells", err);
+            }else{
+              logger.verbose("highestBuyAsASell", highestBuy);
+              if (highestBuy) {
+                logger.verbose("highestBuyAsASell", "push to rows");
+                rows.push({price : highestBuy});
+                rows.push({price : highestBuy * (1/0.9975)}); // as sell
+                // TODO as above, 0.9975 should be extracted to a config
+              }
+              market.autosell(rows);
+            }
+          });
         }
       });
     }
@@ -116,7 +130,6 @@ function minuteAction() {
       dirty = false;
     }
     
-
     return;
   });
 }

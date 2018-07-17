@@ -22,11 +22,8 @@ const websocket = new Gdax.WebsocketClient(
 var size = '0.01';
 
 var autosell = function(sell_prices) {
-  console.log(sell_prices);
+  logger.info("autosellPriceList", sell_prices);
   publicClient.getProductTicker('ETH-BTC', (error, response, data) => {
-    // console.log(error);
-    // console.log(data);
-    // console.log(data.ask);
     var target = Number.parseFloat(data.ask);
     var done = false;
     while (!done) {
@@ -44,8 +41,6 @@ var autosell = function(sell_prices) {
         done = true;
       }
     }
-
-
 
     return;
   });
