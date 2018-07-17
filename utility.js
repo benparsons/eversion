@@ -18,9 +18,16 @@ function updateOrders() {
   logger.verbose("utility", "updateOrders()");
   logger.info("warning", "updateOrders only reads the first page");
   market.getOrders(function(err, res, data) {
-    console.log(err);
-    console.log(data);
-    db.run("DELETE FROM orders")
+    if (err) {
+      logger.error("getOrders", JSON.stringify(err));
+      return;
+    }
+    
+    logger.verbose("getOrders", JSON.stringify(data));
+    // TODO instead of DELETEing everything up front, save the current
+    // datetime and delete everything that doesn't get updated/created
+    // in the loop below
+    db.run("DELETE FROM orders");
     data.forEach(order => {
       var order = {
         type:	'open',
@@ -42,11 +49,7 @@ function updateOrders() {
     
       console.log(sqlString);
       db.run(sqlString);
-  
-      return;
     });
-    
-    return;
   });
 }
 
