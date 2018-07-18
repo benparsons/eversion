@@ -1,14 +1,14 @@
 var error = function(tag, message) {
   write("ERROR", tag, message);
-}
+};
 
 var info = function(tag, message) {
   write("INFO", tag, message);
-}
+};
 
 var verbose = function(tag, message) {
   write("VERBOSE", tag, message);
-}
+};
 
 function write(level, tag, message) {
   var output = (new Date()).toISOString();
@@ -29,4 +29,4 @@ module.exports = {
   error: error,
   info: info,
   verbose: verbose
-}
+};

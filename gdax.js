@@ -42,7 +42,7 @@ var autosell = function(sell_prices) {
 
     return;
   });
-}
+};
 
 var sell = function(price) {
   var sellParams = {
@@ -62,7 +62,7 @@ var sell = function(price) {
     logger.info("sell", data);
     return;
   });
-}
+};
 
 var buy = function(price) {
   var buyParams = {
@@ -80,14 +80,15 @@ var buy = function(price) {
     }
     return;
   });
-}
+};
 
 var getAccounts = function(callback) {
   authedClient.getAccounts(callback);
-}
+};
+
 var getOrders = function(callback) {
   authedClient.getOrders(callback);
-}
+};
 
 module.exports = {
   websocket: websocket,
@@ -96,4 +97,4 @@ module.exports = {
   getAccounts: getAccounts,
   autosell: autosell,
   getOrders: getOrders
-}
+};
