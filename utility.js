@@ -51,5 +51,19 @@ function updateOrders() {
   });
 }
 
+async function getDatabaseOrders(callback) {
+  await db.all("SELECT side FROM orders WHERE type='open'", function(err, rows) {
+    var sells = rows.filter(o => o.side === 'sell').length;
+    var buys = rows.filter(o => o.side === 'buy').length;
+    var result = {sells:sells, buys:buys};
+    console.log(result)
+    if (typeof(callback) === 'function')
+      callback(result);
+  });
+}
 
-module.exports = { updateOrders: updateOrders }
+
+module.exports = { 
+  updateOrders: updateOrders,
+  getDatabaseOrders: getDatabaseOrders
+}
