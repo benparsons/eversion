@@ -7,10 +7,9 @@ var logger = require('./logger.js');
 
 let db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
   if (err) {
-    console.log(err);
-    process.exit();
+    logger.error("DB", err.message);
   } else {
-    console.log('Connected to the eversion database.');
+    logger.verbose("DB", 'Connected to the eversion database.');
   }
 });
 

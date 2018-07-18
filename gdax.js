@@ -30,13 +30,11 @@ var autosell = function(sell_prices) {
       var higher_prices = sell_prices.filter(price => price.price >= target && price.price < target * 1.001);
       var lower_prices = sell_prices.filter(price => price.price <= target && price.price > target * 0.999);
       if (higher_prices.length > 0 || lower_prices.length > 0) {
-        console.log(target);
-        console.log((new Date()).toISOString() + " - lower_prices - " + JSON.stringify(lower_prices));
-        console.log((new Date()).toISOString() + " - higher_prices - " + JSON.stringify(higher_prices));
+        logger.verbose("autosellRestrainedAt", target);
         target *= 1.001;
       }
       else {
-        console.log("would sell for " + target);
+        logger.info("autosellResult", target);
         sell(Number.parseFloat(target.toFixed(5)));
         done = true;
       }
@@ -74,8 +72,12 @@ var buy = function(price) {
   };
 
   authedClient.buy(buyParams, (error, response, data) => {
-    console.log(error);
-    console.log(data);
+    if (error) {
+      logger.error("buy", error);
+    }
+    if (data) {
+      logger.info("buy", data);
+    }
     return;
   });
 }
