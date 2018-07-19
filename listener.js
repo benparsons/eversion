@@ -76,7 +76,8 @@ var seconds = 60 ;
 setInterval(minuteAction, 1000 * seconds);
 
 function minuteAction() {
-  logger.verbose("minuteAction", heartbeat_obj);
+  logger.verbose("minuteAction,heartbeat", heartbeat_obj);
+  utility.getDatabaseOrders((orders) => logger.verbose("minuteAction,dbOrders", orders));
   market.getAccounts((error, response, data) => {
     if (error) {
       logger.error("getAccounts", error);
@@ -93,7 +94,6 @@ function minuteAction() {
     sqlstring += "'" + new Date().toISOString() + "')";
     db.run( sqlstring);
 
-    logger.verbose("currentETH", "ETH available: " + eth_available);
     if (eth_available >= 0.01) {
       dirty = true;
       logger.info("initiatingAutosell", "time to sell eth");
