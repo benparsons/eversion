@@ -11,12 +11,13 @@ var verbose = function(tag, message) {
 };
 
 function write(level, tag, message) {
+  var delimiter = "\t";
   var output = (new Date()).toISOString();
-  output += " - ";
+  output += delimiter;
   output += tag;
-  output += " - ";
+  output += delimiter;
   output += level;
-  output += " - ";
+  output += delimiter;
   if (typeof(message) === 'object') {
     output += JSON.stringify(message, null, 0);
   } else {
