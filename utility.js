@@ -56,7 +56,6 @@ function getDatabaseOrders(callback) {
     var sells = rows.filter(o => o.side === 'sell').length;
     var buys = rows.filter(o => o.side === 'buy').length;
     var result = {sells:sells, buys:buys};
-    console.log(result);
     if (typeof(callback) === 'function')
       callback(result);
   });
