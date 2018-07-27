@@ -45,6 +45,8 @@ var autosell = function(sell_prices) {
 };
 
 var sell = function(price) {
+  if (! settings.liveTrade) { return; }
+
   var sellParams = {
     'price': price, // BTC 
     'size': size, // ETH 
@@ -65,6 +67,8 @@ var sell = function(price) {
 };
 
 var buy = function(price) {
+  if (! settings.liveTrade) { return; }
+  
   var buyParams = {
     'price': price, // BTC 
     'size': size, // ETH 
