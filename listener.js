@@ -8,6 +8,8 @@ var market = require('./gdax.js');
 var utility = require('./utility.js');
 var heartbeat_obj = {};
 var dirty = false;
+var graphite = require('graphite');
+var client = graphite.createClient('plaintext://localhost:2003/');
 
 
 let db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
@@ -76,8 +78,14 @@ var seconds = 60 ;
 setInterval(minuteAction, 1000 * seconds);
 
 function minuteAction() {
-  logger.verbose("minuteAction,heartbeat", heartbeat_obj);
-  utility.getDatabaseOrders((orders) => logger.verbose("minuteAction,dbOrders", orders));
+  client.write({"heartbeat-last_trade_id": heartbeat_obj.last_trade_id}, function(err) {
+    if (err) { logger.error("graphite", err); }
+  });
+  utility.getDatabaseOrders((orders) => {
+    client.write(orders, function(err) {
+      if (err) { logger.error("graphite", err); }
+    });
+  });
   market.getAccounts((error, response, data) => {
     if (error) {
       logger.error("getAccounts", error);
