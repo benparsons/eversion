@@ -36,5 +36,6 @@ function write(level, tag, message) {
 module.exports = {
   error: error,
   info: info,
-  verbose: verbose
+  verbose: verbose,
+  debug: debug
 };
