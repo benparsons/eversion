@@ -32,10 +32,9 @@ var autosell = function(sell_prices) {
     var target = Number.parseFloat(data.ask);
     var done = false;
     while (!done) {
-      var higher_prices = sell_prices.filter(price => price.price >= target && price.price < target * 1.001);
-      var lower_prices = sell_prices.filter(price => price.price <= target && price.price > target * 0.999);
-      if (higher_prices.length > 0 || lower_prices.length > 0) {
-        logger.verbose("autosellRestrainedAt", target);
+      var blocking_prices = sell_prices.filter(price => price.price > target * 0.999 && price.price < target * 1.001);
+      if (blocking_prices.length > 0) {
+        logger.verbose("autosellRestrained", {target: target, blocking_prices: blocking_prices});
         target *= 1.001;
       }
       else {
