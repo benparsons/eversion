@@ -61,9 +61,20 @@ function logMarketAndOrderStatus() {
   var sqlGetHighestBuy = "SELECT price FROM orders  WHERE side = 'buy' AND type = 'open' ORDER BY price DESC LIMIT 1";
   global.db.get(sqlGetHighestBuy, function(err, value) {
     if (err) {
-      logger.error("sqlGetHighestBuy", err);
+      logger.error("logMarketAndOrderStatus,sqlGetHighestBuy", err);
     } else if (value && value.price) {
       global.graphite.write({highestBuy: value.price}, function(err) {
+        if (err) { logger.error("graphite", err); }
+      });
+    }
+  });
+
+  var sqlGetLowestSell = "SELECT price FROM orders  WHERE side = 'sell' AND type = 'open' ORDER BY price ASC LIMIT 1";
+  global.db.get(sqlGetLowestSell, function(err, value) {
+    if (err) {
+      logger.error("logMarketAndOrderStatus,sqlGetLowestSell", err);
+    } else if (value && value.price) {
+      global.graphite.write({lowestSell: value.price}, function(err) {
         if (err) { logger.error("graphite", err); }
       });
     }
