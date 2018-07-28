@@ -1,4 +1,4 @@
-var debug = false;
+var log_debug = false;
 
 var error = function(tag, message) {
   write("ERROR", tag, message);
@@ -13,7 +13,7 @@ var verbose = function(tag, message) {
 };
 
 var debug = function(tag, message) {
-  if (!debug) return;
+  if (!log_debug) return;
   write("DEBUG", tag, message);
 };
 
