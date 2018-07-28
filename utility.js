@@ -22,7 +22,7 @@ function updateOrders() {
       return;
     }
     
-    logger.verbose("getOrders", JSON.stringify(data));
+    logger.debug("getOrders", JSON.stringify(data));
     // TODO instead of DELETEing everything up front, save the current
     // datetime and delete everything that doesn't get updated/created
     // in the loop below

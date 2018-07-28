@@ -1,3 +1,5 @@
+var debug = false;
+
 var error = function(tag, message) {
   write("ERROR", tag, message);
 };
@@ -8,6 +10,11 @@ var info = function(tag, message) {
 
 var verbose = function(tag, message) {
   write("VERBOSE", tag, message);
+};
+
+var debug = function(tag, message) {
+  if (!debug) return;
+  write("DEBUG", tag, message);
 };
 
 function write(level, tag, message) {
