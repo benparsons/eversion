@@ -57,6 +57,17 @@ function logMarketAndOrderStatus() {
       if (err) { logger.error("graphite", err); }
     });
   });
+
+  var sqlGetHighestBuy = "SELECT price FROM orders  WHERE side = 'buy' AND type = 'open' ORDER BY price DESC LIMIT 1";
+  global.db.get(sqlGetHighestBuy, function(err, value) {
+    if (err) {
+      logger.error("sqlGetHighestBuy", err);
+    } else if (value && value.price) {
+      global.graphite.write({highestBuy: value.price}, function(err) {
+        if (err) { logger.error("graphite", err); }
+      });
+    }
+  });
 }
 
 module.exports = { 
