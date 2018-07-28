@@ -12,7 +12,7 @@ var graphite = require('graphite');
 global.graphite = graphite.createClient('plaintext://localhost:2003/');
 
 
-let db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+global.db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
   if (err) {
     logger.error("DB", err.message);
   } else {
@@ -69,7 +69,7 @@ function storeEvent(data) {
   
   var sqlString = sqlgen.insertOrReplaceSql('orders', order);
 
-  db.run(sqlString);
+  global.db.run(sqlString);
 }
 
 minuteAction();
@@ -109,7 +109,7 @@ function minuteAction() {
       logger.info("initiatingAutosell", "time to sell eth");
       var sqlGetHighestBuy = "SELECT price FROM orders  WHERE side = 'buy' AND type = 'open' ORDER BY price DESC LIMIT 1";
       var highestBuy = 0;
-      db.get(sqlGetHighestBuy, function(err, value) {
+      global.db.get(sqlGetHighestBuy, function(err, value) {
         if (err) {
           logger.error("sqlGetHighestBuy", err)
         } else {
@@ -119,7 +119,7 @@ function minuteAction() {
               if (err) { logger.error("graphite", err); }
             });
           }
-          db.all("SELECT price FROM orders WHERE type = 'open' AND side = 'sell'", function (err, rows) {
+          global.db.all("SELECT price FROM orders WHERE type = 'open' AND side = 'sell'", function (err, rows) {
             if(err){
                 logger.error("sqlGetOpenSells", err);
             }else{
