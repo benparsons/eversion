@@ -22,12 +22,12 @@ let db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.
 
 var websocket = market.websocket;
 
-websocket.on('close', function() {
+websocket.on('close', function(err) {
+  logger.error("websocket,close", err);
   websocket.connect();
 });
 websocket.on('error', function(err) { 
-  logger.error("websocket", err);
-  websocket.connect();
+  logger.error("websocket,error", err);
 });
 
 websocket.on('message', function(data) {
