@@ -102,7 +102,7 @@ function minuteAction() {
       if (err) { logger.error("graphite", err); }
     });
     
-    if (accounts.ethAvailable >= 0.0) {
+    if (accounts.ethAvailable >= 0.01) {
       dirty = true;
       logger.info("initiatingAutosell", "time to sell eth");
       var sqlGetHighestBuy = "SELECT price FROM orders  WHERE side = 'buy' AND type = 'open' ORDER BY price DESC LIMIT 1";
