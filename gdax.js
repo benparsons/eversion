@@ -1,6 +1,8 @@
 var settings = require('./settings.js');
 var logger = require('./logger.js');
 logger.verbose("gdax_auth,gdax", settings);
+var graphite = require('graphite');
+var client = graphite.createClient('plaintext://localhost:2003/');
 
 var Gdax = require('gdax');
 
@@ -24,6 +26,9 @@ var size = '0.01';
 var autosell = function(sell_prices) {
   logger.info("autosellPriceList", sell_prices);
   publicClient.getProductTicker('ETH-BTC', (error, response, data) => {
+    client.write({ethBtcTicker: data}, function(err) {
+      if (err) { logger.error("graphite", err); }
+    });
     var target = Number.parseFloat(data.ask);
     var done = false;
     while (!done) {

@@ -102,7 +102,7 @@ function minuteAction() {
       if (err) { logger.error("graphite", err); }
     });
     
-    if (accounts.ethAvailable >= 0.01) {
+    if (accounts.ethAvailable >= 0.0) {
       dirty = true;
       logger.info("initiatingAutosell", "time to sell eth");
       var sqlGetHighestBuy = "SELECT price FROM orders  WHERE side = 'buy' AND type = 'open' ORDER BY price DESC LIMIT 1";
@@ -113,13 +113,18 @@ function minuteAction() {
         } else {
           if (value && value.price) {
             highestBuy = value.price;
-            logger.verbose("sqlGetHighestBuy", highestBuy);
+            client.write({highestBuy: highestBuy}, function(err) {
+              if (err) { logger.error("graphite", err); }
+            });
           }
           db.all("SELECT price FROM orders WHERE type = 'open' AND side = 'sell'", function (err, rows) {
             if(err){
                 logger.error("sqlGetOpenSells", err);
             }else{
-              logger.verbose("highestBuyAsASell", highestBuy);
+              var lowestSell = Math.min.apply(null,rows.map(r => r.price));
+              client.write({lowestSell: lowestSell}, function(err) {
+                if (err) { logger.error("graphite", err); }
+              });
               if (highestBuy) {
                 logger.verbose("highestBuyAsASell", "push to rows");
                 rows.push({price : highestBuy});
