@@ -91,18 +91,18 @@ function minuteAction() {
       logger.error("getAccounts", error);
       return;
     }
-    var eth_available = Number.parseFloat(
-      data.find(o => o.currency === 'ETH').available
-    );
-    var sqlstring = "INSERT into accounts(eth_available, eth_hold, btc_available, btc_hold, time) VALUES (";
-    sqlstring += Number.parseFloat(data.find(o => o.currency === 'ETH').available) + ',';
-    sqlstring += Number.parseFloat(data.find(o => o.currency === 'ETH').hold) + ',';
-    sqlstring += Number.parseFloat(data.find(o => o.currency === 'BTC').available) + ',';
-    sqlstring += Number.parseFloat(data.find(o => o.currency === 'BTC').hold) + ',';
-    sqlstring += "'" + new Date().toISOString() + "')";
-    db.run( sqlstring);
-
-    if (eth_available >= 0.01) {
+    
+    var accounts = {
+      ethAvailable: Number.parseFloat(data.find(o => o.currency === 'ETH').available),
+      ethHold: Number.parseFloat(data.find(o => o.currency === 'ETH').hold),
+      btcAvailable: Number.parseFloat(data.find(o => o.currency === 'BTC').available),
+      btcHold: Number.parseFloat(data.find(o => o.currency === 'BTC').hold)
+    };
+    client.write({accounts: accounts}, function(err) {
+      if (err) { logger.error("graphite", err); }
+    });
+    
+    if (accounts.ethAvailable >= 0.01) {
       dirty = true;
       logger.info("initiatingAutosell", "time to sell eth");
       var sqlGetHighestBuy = "SELECT price FROM orders  WHERE side = 'buy' AND type = 'open' ORDER BY price DESC LIMIT 1";
