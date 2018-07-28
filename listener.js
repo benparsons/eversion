@@ -9,7 +9,7 @@ var utility = require('./utility.js');
 var heartbeat_obj = {};
 var dirty = false;
 var graphite = require('graphite');
-var client = graphite.createClient('plaintext://localhost:2003/');
+global.graphite = graphite.createClient('plaintext://localhost:2003/');
 
 
 let db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
@@ -78,11 +78,11 @@ var seconds = 60 ;
 setInterval(minuteAction, 1000 * seconds);
 
 function minuteAction() {
-  client.write({"heartbeat-last_trade_id": heartbeat_obj.last_trade_id}, function(err) {
+  global.graphite.write({"heartbeat-last_trade_id": heartbeat_obj.last_trade_id}, function(err) {
     if (err) { logger.error("graphite", err); }
   });
   utility.getDatabaseOrders((orders) => {
-    client.write(orders, function(err) {
+    global.graphite.write(orders, function(err) {
       if (err) { logger.error("graphite", err); }
     });
   });
@@ -99,7 +99,7 @@ function minuteAction() {
       btcHold: Number.parseFloat(data.find(o => o.currency === 'BTC').hold)
     };
     // TODO wrap this
-    client.write({accounts: accounts}, function(err) {
+    global.graphite.write({accounts: accounts}, function(err) {
       if (err) { logger.error("graphite", err); }
     });
     
@@ -115,7 +115,7 @@ function minuteAction() {
         } else {
           if (value && value.price) {
             highestBuy = value.price;
-            client.write({highestBuy: highestBuy}, function(err) {
+            global.graphite.write({highestBuy: highestBuy}, function(err) {
               if (err) { logger.error("graphite", err); }
             });
           }
@@ -124,7 +124,7 @@ function minuteAction() {
                 logger.error("sqlGetOpenSells", err);
             }else{
               var lowestSell = Math.min.apply(null,rows.map(r => r.price));
-              client.write({lowestSell: lowestSell}, function(err) {
+              global.graphite.write({lowestSell: lowestSell}, function(err) {
                 if (err) { logger.error("graphite", err); }
               });
               if (highestBuy) {

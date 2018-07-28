@@ -1,8 +1,6 @@
 var settings = require('./settings.js');
 var logger = require('./logger.js');
 logger.verbose("gdax_auth,gdax", settings);
-var graphite = require('graphite');
-var client = graphite.createClient('plaintext://localhost:2003/');
 
 var Gdax = require('gdax');
 
@@ -28,7 +26,7 @@ var autosell = function(sell_prices) {
   // TODO get product ticker every ten minutes regardless
   publicClient.getProductTicker('ETH-BTC', (error, response, data) => {
     // TODO use Dependency Injection (or something?) to avoid needing to connect separately to db, gdax, graphite, etc
-    client.write({ethBtcTicker: data}, function(err) {
+    global.graphite.write({ethBtcTicker: data}, function(err) {
       if (err) { logger.error("graphite", err); }
     });
     var target = Number.parseFloat(data.ask);
