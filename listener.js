@@ -148,3 +148,11 @@ function minuteAction() {
     return;
   });
 }
+
+tenMinuteAction();
+
+setInterval(tenMinuteAction, 1000 * seconds * 10);
+
+function tenMinuteAction() {
+  utility.logMarketAndOrderStatus();
+}

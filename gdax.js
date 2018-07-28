@@ -99,11 +99,23 @@ var getOrders = function(callback) {
   authedClient.getOrders(callback);
 };
 
+var getProductTicker = function(product, callback) {
+  publicClient.getProductTicker(product, (error, response, data) => {
+    if (error) {
+      logger.error("getProductTicker", error);
+      return;
+    }
+
+    callback(data);
+  });
+};
+
 module.exports = {
   websocket: websocket,
   sell: sell,
   buy: buy,
   getAccounts: getAccounts,
   autosell: autosell,
-  getOrders: getOrders
+  getOrders: getOrders,
+  getProductTicker: getProductTicker
 };

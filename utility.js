@@ -51,8 +51,16 @@ function getDatabaseOrders(callback) {
   });
 }
 
+function logMarketAndOrderStatus() {
+  market.getProductTicker('ETH-BTC', (data) => {
+    global.graphite.write({ethBtcTicker: data}, function(err) {
+      if (err) { logger.error("graphite", err); }
+    });
+  });
+}
 
 module.exports = { 
   updateOrders: updateOrders,
-  getDatabaseOrders: getDatabaseOrders
+  getDatabaseOrders: getDatabaseOrders,
+  logMarketAndOrderStatus: logMarketAndOrderStatus
 };
