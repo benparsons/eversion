@@ -6,6 +6,7 @@ var logger = require('./logger.js');
 function updateOrders() {
   logger.verbose("utility", "updateOrders()");
   logger.info("warning", "updateOrders only reads the first page");
+  // TODO updateOrders needs to read all pages
   market.getOrders(function(err, res, data) {
     if (err) {
       logger.error("getOrders", JSON.stringify(err));
