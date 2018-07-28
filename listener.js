@@ -98,10 +98,12 @@ function minuteAction() {
       btcAvailable: Number.parseFloat(data.find(o => o.currency === 'BTC').available),
       btcHold: Number.parseFloat(data.find(o => o.currency === 'BTC').hold)
     };
+    // TODO wrap this
     client.write({accounts: accounts}, function(err) {
       if (err) { logger.error("graphite", err); }
     });
     
+    // TODO flatten this
     if (accounts.ethAvailable >= 0.01) {
       dirty = true;
       logger.info("initiatingAutosell", "time to sell eth");

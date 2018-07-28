@@ -25,7 +25,9 @@ var size = '0.01';
 
 var autosell = function(sell_prices) {
   logger.info("autosellPriceList", sell_prices);
+  // TODO get product ticker every ten minutes regardless
   publicClient.getProductTicker('ETH-BTC', (error, response, data) => {
+    // TODO use Dependency Injection (or something?) to avoid needing to connect separately to db, gdax, graphite, etc
     client.write({ethBtcTicker: data}, function(err) {
       if (err) { logger.error("graphite", err); }
     });
