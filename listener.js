@@ -111,7 +111,7 @@ function minuteAction() {
       var highestBuy = 0;
       global.db.get(sqlGetHighestBuy, function(err, value) {
         if (err) {
-          logger.error("sqlGetHighestBuy", err)
+          logger.error("sqlGetHighestBuy", err);
         } else {
           if (value && value.price) {
             highestBuy = value.price;
@@ -155,4 +155,8 @@ setInterval(tenMinuteAction, 1000 * seconds * 10);
 
 function tenMinuteAction() {
   utility.logMarketAndOrderStatus();
+
+  // TODO database stats and maintenance report
+  // * find any duplicate prices
+  // * measure the spread between orders (sell and buy separate)
 }
