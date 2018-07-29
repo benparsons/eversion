@@ -32,6 +32,7 @@ var autosell = function(sell_prices) {
     var target = Number.parseFloat(data.ask);
     var done = false;
     while (!done) {
+      // TODO the 0.999 / 1.001 values should be stored as a global setting, then created 1-setting, 1+setting
       var blocking_prices = sell_prices.filter(price => price.price > target * 0.999 && price.price < target * 1.001);
       if (blocking_prices.length > 0) {
         logger.verbose("autosellRestrained", {target: target, blocking_prices: blocking_prices});
@@ -70,6 +71,7 @@ var sell = function(price) {
   });
 };
 
+// TODO buy should take a size
 var buy = function(price) {
   if (! settings.liveTrade) { return; }
   
