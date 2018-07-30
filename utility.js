@@ -70,6 +70,7 @@ function logMarketAndOrderStatus() {
     }
   });
 
+  // TODO also log the highest sell
   var sqlGetLowestSell = "SELECT price FROM orders  WHERE side = 'sell' AND type = 'open' ORDER BY price ASC LIMIT 1";
   global.db.get(sqlGetLowestSell, function(err, value) {
     if (err) {

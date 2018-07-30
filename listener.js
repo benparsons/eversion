@@ -4,6 +4,7 @@ var sqlgen = require('./sqlgen.js');
 logger.verbose("gdax_auth,listener", settings);
 var Gdax = require('gdax');
 const sqlite3 = require('sqlite3').verbose();
+// TODO make market global same as db and graphite
 var market = require('./gdax.js');
 var utility = require('./utility.js');
 var heartbeat_obj = {};
@@ -143,6 +144,7 @@ function processAutosell() {
           if (err) { logger.error("graphite", err); }
         });
         if (highestBuy) {
+          // TODO pushing these into rows should be optional
           logger.verbose("highestBuyAsASell", "push to rows");
           rows.push({price : highestBuy});
           rows.push({price : highestBuy * (1/0.9975)}); // as sell
