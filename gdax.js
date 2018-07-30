@@ -74,7 +74,7 @@ var autobuy = function() {
     global.graphite.write({ethBtcTicker: data}, function(err) {
       if (err) { logger.error("graphite", err); }
     });
-    buy(data,bid);
+    buy(data.bid);
   });
 };
 
