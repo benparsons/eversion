@@ -19,8 +19,6 @@ const websocket = new Gdax.WebsocketClient(
   { channels: ['user'] }
 );
 
-var size = '0.01';
-
 var autosell = function(sell_prices) {
   logger.info("autosellPriceList", sell_prices);
   publicClient.getProductTicker('ETH-BTC', (error, response, data) => {
@@ -52,7 +50,7 @@ var sell = function(price) {
 
   var sellParams = {
     'price': price, // BTC 
-    'size': size, // ETH 
+    'size': global.config.basicSize.toString(), // ETH 
     'product_id': 'ETH-BTC',
     'post_only': true,
     'time_in_force': 'GTT',
@@ -75,7 +73,7 @@ var buy = function(price) {
   
   var buyParams = {
     'price': price, // BTC 
-    'size': size, // ETH 
+    'size': global.config.basicSize.toString(), // ETH 
     'product_id': 'ETH-BTC',
   };
 

@@ -11,7 +11,7 @@ var heartbeat_obj = {};
 var dirty = false;
 var graphite = require('graphite');
 global.graphite = graphite.createClient('plaintext://localhost:2003/');
-
+var fs = require('fs');
 
 global.db = new sqlite3.Database('./eversion.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
   if (err) {
@@ -87,6 +87,12 @@ function minuteAction() {
       if (err) { logger.error("graphite", err); }
     });
   });
+
+  global.config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+  global.graphite.write({config: global.config}, function(err) {
+    if (err) { logger.error("graphite", err); }
+  });
+
   market.getAccounts((error, response, data) => {
     if (error) {
       logger.error("getAccounts", error);
@@ -104,8 +110,7 @@ function minuteAction() {
       if (err) { logger.error("graphite", err); }
     });
     // TODO if there is more than x btcAvailable, we should make a small buy
-    // TODO 0.01 should be a global setting, also used for the autosell
-    if (accounts.ethAvailable >= 0.01) {
+    if (accounts.ethAvailable >= global.config.basicSize) {
       dirty = true;
       logger.info("initiatingAutosell", "time to sell eth");
       processAutosell();
