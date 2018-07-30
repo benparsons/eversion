@@ -116,6 +116,12 @@ function minuteAction() {
       processAutosell();
     }
 
+    if (accounts.btcAvailable > global.config.btcFloat) {
+      dirty = true;
+      logger.info("initiatingAutobuy", "time to buy eth");
+      market.autobuy();
+    }
+
     if (dirty) {
       setTimeout(utility.updateOrders, 5 * 1000);
       dirty = false;

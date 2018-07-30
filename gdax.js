@@ -67,6 +67,17 @@ var sell = function(price) {
   });
 };
 
+var autobuy = function() {
+  if (! settings.liveTrade) { return; }
+
+  publicClient.getProductTicker('ETH-BTC', (error, response, data) => {    
+    global.graphite.write({ethBtcTicker: data}, function(err) {
+      if (err) { logger.error("graphite", err); }
+    });
+    buy(data,bid);
+  });
+};
+
 // TODO buy should take a size
 var buy = function(price) {
   if (! settings.liveTrade) { return; }
@@ -113,6 +124,7 @@ module.exports = {
   buy: buy,
   getAccounts: getAccounts,
   autosell: autosell,
+  autobuy: autobuy,
   getOrders: getOrders,
   getProductTicker: getProductTicker
 };
