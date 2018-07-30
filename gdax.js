@@ -20,7 +20,7 @@ const websocket = new Gdax.WebsocketClient(
 );
 
 var autosell = function(sell_prices) {
-  logger.info("autosellPriceList", sell_prices);
+  logger.debug("autosellPriceList", sell_prices);
   publicClient.getProductTicker('ETH-BTC', (error, response, data) => {
     global.graphite.write({ethBtcTicker: data}, function(err) {
       if (err) { logger.error("graphite", err); }
@@ -31,7 +31,7 @@ var autosell = function(sell_prices) {
       // TODO the 0.999 / 1.001 values should be stored as a global setting, then created 1-setting, 1+setting
       var blocking_prices = sell_prices.filter(price => price.price > target * 0.999 && price.price < target * 1.001);
       if (blocking_prices.length > 0) {
-        logger.verbose("autosellRestrained", {target: target, blocking_prices: blocking_prices});
+        logger.debug("autosellRestrained", {target: target, blocking_prices: blocking_prices});
         target *= 1.001;
       }
       else {
