@@ -70,13 +70,23 @@ function logMarketAndOrderStatus() {
     }
   });
 
-  // TODO also log the highest sell
   var sqlGetLowestSell = "SELECT price FROM orders  WHERE side = 'sell' AND type = 'open' ORDER BY price ASC LIMIT 1";
   global.db.get(sqlGetLowestSell, function(err, value) {
     if (err) {
       logger.error("logMarketAndOrderStatus,sqlGetLowestSell", err);
     } else if (value && value.price) {
       global.graphite.write({lowestSell: value.price}, function(err) {
+        if (err) { logger.error("graphite", err); }
+      });
+    }
+  });
+
+  var sqlGetHighestSell = "SELECT price FROM orders  WHERE side = 'sell' AND type = 'open' ORDER BY price DESC LIMIT 1";
+  global.db.get(sqlGetHighestSell, function(err, value) {
+    if (err) {
+      logger.error("logMarketAndOrderStatus,sqlGetHighestSell", err);
+    } else if (value && value.price) {
+      global.graphite.write({highestSell: value.price}, function(err) {
         if (err) { logger.error("graphite", err); }
       });
     }
