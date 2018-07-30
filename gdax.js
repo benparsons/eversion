@@ -114,7 +114,7 @@ var getOrders = function(callback, orders, after) {
     }
     orders = orders.concat(data);
     if (data.length === 100) {
-      getOrders(callback, orders, res.headers['cb-after']);
+      getOrders(callback, orders, {after: res.headers['cb-after']});
     }
     else {
       callback(orders);
