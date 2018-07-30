@@ -103,8 +103,23 @@ var getAccounts = function(callback) {
   authedClient.getAccounts(callback);
 };
 
-var getOrders = function(callback) {
-  authedClient.getOrders(callback);
+var getOrders = function(callback, orders, after) {
+  if (! orders) orders = [];
+  if (! after) after = {};
+
+  authedClient.getOrders(after, function(err, res, data) {
+    if (err) {
+      logger.error("gdax,getOrders", JSON.stringify(err));
+      return;
+    }
+    orders = orders.concat(data);
+    if (data.length === 100) {
+      getOrders(callback, orders, res.headers['cb-after']);
+    }
+    else {
+      callback(orders);
+    }
+  });
 };
 
 var getProductTicker = function(product, callback) {

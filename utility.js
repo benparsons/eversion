@@ -4,21 +4,14 @@ var sqlgen = require('./sqlgen.js');
 var logger = require('./logger.js');
 
 function updateOrders() {
-  logger.verbose("utility", "updateOrders()");
-  logger.info("warning", "updateOrders only reads the first page");
-  // TODO updateOrders needs to read all pages
-  market.getOrders(function(err, res, data) {
-    if (err) {
-      logger.error("getOrders", JSON.stringify(err));
-      return;
-    }
-    
-    logger.debug("getOrders", JSON.stringify(data));
+  market.getOrders(function(orders) {
+    logger.verbose("updateOrders", {numOfOrders: orders.length});
+    logger.debug("getOrders", JSON.stringify(orders));
     // TODO instead of DELETEing everything up front, save the current
     // datetime and delete everything that doesn't get updated/created
     // in the loop below
     global.db.run("DELETE FROM orders");
-    data.forEach(order => {
+    orders.forEach(order => {
       var order = {
         type:	'open',
         order_id:	order.id,
