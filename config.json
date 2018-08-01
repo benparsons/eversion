@@ -1,4 +1,5 @@
 {
     "basicSize": 0.01,
-    "btcFloat": 0.03
+    "btcFloat": 0.03,
+    "autosellStep": 0.001
 }

@@ -29,7 +29,9 @@ var autosell = function(sell_prices) {
     var done = false;
     while (!done) {
       // TODO the 0.999 / 1.001 values should be stored as a global setting, then created 1-setting, 1+setting
-      var blocking_prices = sell_prices.filter(price => price.price > target * 0.999 && price.price < target * 1.001);
+      var lowerBound = target * (1 - global.config.autosellStep);
+      var upperBound = target * (1 + global.config.autosellStep);
+      var blocking_prices = sell_prices.filter(price => price.price > lowerBound && price.price < upperBound);
       if (blocking_prices.length > 0) {
         logger.debug("autosellRestrained", {target: target, blocking_prices: blocking_prices});
         target *= 1.001;
