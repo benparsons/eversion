@@ -48,6 +48,9 @@ websocket.on('message', function(data) {
       buyPrice = Number.parseFloat(buyPrice.toFixed(5));
       market.buy(buyPrice);
     }
+    global.graphite.write({["filled-" + data.side]: data.price}, function(err) {
+      if (err) { logger.error("graphite", err); }
+    });
   }
 });
 
