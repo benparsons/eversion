@@ -52,6 +52,17 @@ function logMarketAndOrderStatus() {
     });
   });
 
+  var sqlGetLowestBuy = "SELECT price FROM orders  WHERE side = 'buy' AND type = 'open' ORDER BY price ASC LIMIT 1";
+  global.db.get(sqlGetLowestBuy, function(err, value) {
+    if (err) {
+      logger.error("logMarketAndOrderStatus,sqlGetLowestBuy", err);
+    } else if (value && value.price) {
+      global.graphite.write({lowestBuy: value.price}, function(err) {
+        if (err) { logger.error("graphite", err); }
+      });
+    }
+  });
+
   var sqlGetHighestBuy = "SELECT price FROM orders  WHERE side = 'buy' AND type = 'open' ORDER BY price DESC LIMIT 1";
   global.db.get(sqlGetHighestBuy, function(err, value) {
     if (err) {
