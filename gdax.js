@@ -28,7 +28,6 @@ var autosell = function(sell_prices) {
     var target = Number.parseFloat(data.ask);
     var done = false;
     while (!done) {
-      // TODO the 0.999 / 1.001 values should be stored as a global setting, then created 1-setting, 1+setting
       var lowerBound = target * (1 - global.config.autosellStep);
       var upperBound = target * (1 + global.config.autosellStep);
       var blocking_prices = sell_prices.filter(price => price.price > lowerBound && price.price < upperBound);

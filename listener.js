@@ -44,7 +44,7 @@ websocket.on('message', function(data) {
   dirty = true;
   if (data.type === 'done' && data.reason === 'filled') {
     if (data.side === 'sell') {
-      var buyPrice = data.price * 0.9975; // -0.25%
+      var buyPrice = data.price * global.config.buybackMargin; // -0.25%
       buyPrice = Number.parseFloat(buyPrice.toFixed(5));
       market.buy(buyPrice);
     }
@@ -158,8 +158,7 @@ function processAutosell() {
           // TODO pushing these into rows should be optional
           logger.verbose("highestBuyAsASell", "push to rows");
           rows.push({price : highestBuy});
-          rows.push({price : highestBuy * (1/0.9975)}); // as sell
-          // TODO as above, 0.9975 should be extracted to a config
+          rows.push({price : highestBuy * (1/global.config.buybackMargin)}); // as sell
         }
         market.autosell(rows);
       }
