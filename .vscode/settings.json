@@ -3,5 +3,6 @@
         "autobuy",
         "autosell",
         "gdax"
-    ]
+    ],
+    "todo-tree.expanded": true
 }

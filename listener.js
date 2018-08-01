@@ -109,7 +109,7 @@ function minuteAction() {
     global.graphite.write({accounts: accounts}, function(err) {
       if (err) { logger.error("graphite", err); }
     });
-    // TODO if there is more than x btcAvailable, we should make a small buy
+    
     if (accounts.ethAvailable >= global.config.basicSize) {
       dirty = true;
       logger.info("initiatingAutosell", "time to sell eth");

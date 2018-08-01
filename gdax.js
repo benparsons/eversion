@@ -48,6 +48,7 @@ var autosell = function(sell_prices) {
 var sell = function(price) {
   if (! settings.liveTrade) { return; }
 
+  // TODO cancel_after should be configurable (global.config.cancelSellAfter)
   var sellParams = {
     'price': price, // BTC 
     'size': global.config.basicSize.toString(), // ETH 
