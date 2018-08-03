@@ -7,10 +7,8 @@ function updateOrders() {
   market.getOrders(function(orders) {
     logger.verbose("updateOrders", {numOfOrders: orders.length});
     logger.debug("getOrders", JSON.stringify(orders));
-    // TODO instead of DELETEing everything up front, save the current
-    // datetime and delete everything that doesn't get updated/created
-    // in the loop below
-    global.db.run("DELETE FROM orders");
+    
+    var previousDate = (new Date()).toISOString();
     orders.forEach(order => {
       var order = {
         type:	'open',
@@ -29,14 +27,19 @@ function updateOrders() {
       };
       
       var sqlString = sqlgen.insertOrReplaceSql('orders', order);
-    
       global.db.run(sqlString);
     });
+    var deleteSqlString = "DELETE FROM orders WHERE last_updated < '" + previousDate + "'";
+    global.db.run(deleteSqlString);
   });
 }
 
 function getDatabaseOrders(callback) {
   global.db.all("SELECT side FROM orders WHERE type='open'", function(err, rows) {
+    if (err) {
+      logger.error("getDatabaseOrders", err);
+      return;
+    }
     var sells = rows.filter(o => o.side === 'sell').length;
     var buys = rows.filter(o => o.side === 'buy').length;
     var result = {sells:sells, buys:buys, allOrders: sells+buys};
