@@ -49,15 +49,14 @@ var autosell = function(sell_prices) {
 var sell = function(price) {
   if (! settings.liveTrade) { return; }
 
-  // TODO cancel_after should be configurable (global.config.cancelSellAfter)
-  // TODO cancel_after should be randomised between day and hour to distribute sells faster
+  var cancelSellAfter = Math.random() < global.config.hourSellChance ? 'hour' : 'day';
   var sellParams = {
     'price': price, // BTC 
     'size': global.config.basicSize.toString(), // ETH 
     'product_id': 'ETH-BTC',
     'post_only': true,
     'time_in_force': 'GTT',
-    'cancel_after': 'day'//'hour'
+    'cancel_after': cancelSellAfter
   };
 
   authedClient.sell(sellParams, (error, response, data) => {
