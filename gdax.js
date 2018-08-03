@@ -50,6 +50,7 @@ var sell = function(price) {
   if (! settings.liveTrade) { return; }
 
   // TODO cancel_after should be configurable (global.config.cancelSellAfter)
+  // TODO cancel_after should be randomised between day and hour to distribute sells faster
   var sellParams = {
     'price': price, // BTC 
     'size': global.config.basicSize.toString(), // ETH 
