@@ -100,8 +100,27 @@ function logMarketAndOrderStatus() {
   });
 }
 
+function logSellCountByHour() {
+  var sqlGetSellCountByHour = "select substr(expire_time, 12, 2) as hour, count(*) as count from orders where side = 'sell' group by 1 order by 1";
+  db.all(sqlGetSellCountByHour, function (err, rows) {
+    if(err){
+        logger.error("logSellCountByHour", err);
+    } else {
+      var output = {};
+      rows.forEach(row => {
+        output["h" + row.hour] = row.count;
+      });
+      console.log(output);
+      global.graphite.write({sellCountByHour: output}, function(err) {
+        if (err) { logger.error("graphite", err); }
+      });
+    }
+  });
+}
+
 module.exports = { 
   updateOrders: updateOrders,
   getDatabaseOrders: getDatabaseOrders,
-  logMarketAndOrderStatus: logMarketAndOrderStatus
+  logMarketAndOrderStatus: logMarketAndOrderStatus,
+  logSellCountByHour: logSellCountByHour
 };
