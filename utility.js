@@ -110,7 +110,6 @@ function logSellCountByHour() {
       rows.forEach(row => {
         output["h" + row.hour] = row.count;
       });
-      console.log(output);
       global.graphite.write({sellCountByHour: output}, function(err) {
         if (err) { logger.error("graphite", err); }
       });
