@@ -30,8 +30,12 @@ var autosell = function(sell_prices) {
     var target = Number.parseFloat(data.ask);
     var done = false;
     while (!done) {
-      if (target - Number.parseFloat(data.ask) < 0.001) { stepMultiplier = 0.5; }
-      else { stepMultiplier = 1; }
+      if (target - Number.parseFloat(data.ask) < global.config.stepMultiplierThreshold) { 
+        stepMultiplier = global.config.stepMultiplier;
+      }
+      else { 
+        stepMultiplier = 1; 
+      }
       logger.verbose("autosell,stepMultiplier", stepMultiplier);
       var lowerBound = target * (1 - (global.config.autosellStep * stepMultiplier));
       var upperBound = target * (1 + (global.config.autosellStep * stepMultiplier));
