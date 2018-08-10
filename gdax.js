@@ -19,20 +19,25 @@ const websocket = new Gdax.WebsocketClient(
   { channels: ['user'] }
 );
 
+// TODO maybe sells within some range of the ask can have a larger size
 var autosell = function(sell_prices) {
   logger.debug("autosellPriceList", sell_prices);
   publicClient.getProductTicker('ETH-BTC', (error, response, data) => {
     global.graphite.write({ethBtcTicker: data}, function(err) {
       if (err) { logger.error("graphite", err); }
     });
+    var stepMultiplier = 1;
     var target = Number.parseFloat(data.ask);
     var done = false;
     while (!done) {
-      var lowerBound = target * (1 - global.config.autosellStep);
-      var upperBound = target * (1 + global.config.autosellStep);
+      if (target - Number.parseFloat(data.ask) < 0.001) { stepMultiplier = 0.5; }
+      else { stepMultiplier = 1; }
+      logger.verbose("autosell,stepMultiplier", stepMultiplier);
+      var lowerBound = target * (1 - (global.config.autosellStep * stepMultiplier));
+      var upperBound = target * (1 + (global.config.autosellStep * stepMultiplier));
       var blocking_prices = sell_prices.filter(price => price.price > lowerBound && price.price < upperBound);
       if (blocking_prices.length > 0) {
-        logger.debug("autosellRestrained", {target: target, blocking_prices: blocking_prices});
+        logger.verbose("autosellRestrained", {target: target, blocking_prices: blocking_prices});
         target *= 1.001;
       }
       else {
