@@ -161,7 +161,7 @@ function processAutosell() {
           // TODO pushing these into rows should be optional
           logger.verbose("highestBuyAsASell", "push to rows");
           rows.push({price : highestBuy});
-          //rows.push({price : highestBuy * (1/global.config.buybackMargin)}); // as sell
+          rows.push({price : highestBuy * (1/global.config.buybackMargin)}); // as sell
         }
         market.autosell(rows);
       }
